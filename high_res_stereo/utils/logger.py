@@ -12,26 +12,25 @@ from torch.autograd import Variable
 import numpy as np
 import scipy.misc
 import os
+
 try:
     from StringIO import StringIO  # Python 2.7
 except ImportError:
-    from io import BytesIO         # Python 3.x
+    from io import BytesIO  # Python 3.x
 
 
 class Logger(object):
-
     def __init__(self, log_dir, name=None):
         """Create a summary writer logging to log_dir."""
         if name is None:
-            name = 'temp'
+            name = "temp"
         self.name = name
         if name is not None:
             try:
                 os.makedirs(os.path.join(log_dir, name))
             except:
                 pass
-            self.writer = tf.summary.FileWriter(os.path.join(log_dir, name),
-                                                filename_suffix=name)
+            self.writer = tf.summary.FileWriter(os.path.join(log_dir, name), filename_suffix=name)
         else:
             self.writer = tf.summary.FileWriter(log_dir, filename_suffix=name)
 
@@ -53,11 +52,9 @@ class Logger(object):
             scipy.misc.toimage(img).save(s, format="png")
 
             # Create an Image object
-            img_sum = tf.Summary.Image(encoded_image_string=s.getvalue(),
-                                       height=img.shape[0],
-                                       width=img.shape[1])
+            img_sum = tf.Summary.Image(encoded_image_string=s.getvalue(), height=img.shape[0], width=img.shape[1])
             # Create a Summary value
-            img_summaries.append(tf.Summary.Value(tag='%s/%d' % (tag, i), image=img_sum))
+            img_summaries.append(tf.Summary.Value(tag="%s/%d" % (tag, i), image=img_sum))
 
         # Create and write Summary
         summary = tf.Summary(value=img_summaries)
@@ -75,7 +72,7 @@ class Logger(object):
         hist.max = float(np.max(values))
         hist.num = int(np.prod(values.shape))
         hist.sum = float(np.sum(values))
-        hist.sum_squares = float(np.sum(values**2))
+        hist.sum_squares = float(np.sum(values ** 2))
 
         # Drop the start of the first bin
         bin_edges = bin_edges[1:]
@@ -106,8 +103,7 @@ class Logger(object):
         for tag, value in model.named_parameters():
             if value.grad is None:
                 continue
-            tag = tag.replace('.', '/')
-            tag = self.name+'/'+tag
+            tag = tag.replace(".", "/")
+            tag = self.name + "/" + tag
             self.histo_summary(tag, self.to_np(value), step)
-            self.histo_summary(tag+'/grad', self.to_np(value.grad), step)
-
+            self.histo_summary(tag + "/grad", self.to_np(value.grad), step)
